@@ -1,6 +1,7 @@
 package com.example.foodidentifier;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -8,8 +9,14 @@ import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,8 +75,7 @@ public class ScanItemActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //display window to insert correct answer
-                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                        showSuggestionForCorrectAnswerDialog();
                     }
                 }
         );
@@ -84,6 +90,56 @@ public class ScanItemActivity extends AppCompatActivity {
                 }
         );
 
+    }
+
+    private void showSuggestionForCorrectAnswerDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View alertWindowView = inflater.inflate(R.layout.activity_insert_correct_solution_dialog_window, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(alertWindowView)
+                .setTitle("Insert the correct answer:");
+        builder.setCancelable(false);
+        AlertDialog alertWindow = builder.create();
+        alertWindow.show();
+        EditText correctedItem = (EditText) alertWindowView.findViewById(R.id.correctedItem);
+        Button sendButton = (Button) alertWindowView.findViewById(R.id.sendButton);
+        Button cancelButton = (Button) alertWindowView.findViewById(R.id.cancelButton);
+        sendButton.setEnabled(false);
+        correctedItem.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+                sendButton.setEnabled(!correctedItem.getText().toString().trim().isEmpty());
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                sendButton.setEnabled(!correctedItem.getText().toString().trim().isEmpty());
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                sendButton.setEnabled(!correctedItem.getText().toString().trim().isEmpty());
+            }
+        });
+
+        sendButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertWindow.dismiss();
+                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                        wrongButton.setEnabled(false);
+                        correctButton.setEnabled(false);
+                    }
+                }
+        );
+
+        cancelButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertWindow.dismiss();
+                    }
+                }
+        );
     }
 
     @Override
