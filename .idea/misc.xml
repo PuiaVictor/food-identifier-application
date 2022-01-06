@@ -4,7 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Victor Puia/Desktop/SemestrialResearch1/food-identifier-application/app/src/main/res/layout/activity_main.xml" value="0.4" />
+        <entry key="..\:/Users/Victor Puia/Desktop/SemestrialResearch1/food-identifier-application/app/src/main/res/layout/activity_previously_scanned_items.xml" value="0.21458333333333332" />
         <entry key="..\:/Users/Victor Puia/Desktop/SemestrialResearch1/food-identifier-application/app/src/main/res/layout/activity_scan_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/Victor Puia/Desktop/SemestrialResearch1/food-identifier-application/app/src/main/res/layout/recyclerview_row.xml" value="0.21458333333333332" />
       </map>
     </option>
   </component>
