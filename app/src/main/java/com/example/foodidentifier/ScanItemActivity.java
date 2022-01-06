@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -30,8 +31,9 @@ import java.nio.ByteOrder;
 public class ScanItemActivity extends AppCompatActivity {
     TextView result, confidence, confidence2;
     ImageView imageView;
-    Button picture;
+    Button takePicture, wrongButton, correctButton;
     int imageSize = 224;
+    String scannedItemType = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +44,11 @@ public class ScanItemActivity extends AppCompatActivity {
         confidence = findViewById(R.id.confidence);
         confidence2 = findViewById(R.id.confidence2);
         imageView = findViewById(R.id.imageView);
-        picture = findViewById(R.id.button);
+        takePicture = findViewById(R.id.pictureButton);
+        wrongButton = findViewById(R.id.wrongButton);
+        correctButton = findViewById(R.id.correctButton);
 
-        picture.setOnClickListener(new View.OnClickListener() {
+        takePicture.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
@@ -58,6 +62,28 @@ public class ScanItemActivity extends AppCompatActivity {
                 }
             }
         });
+        wrongButton.setEnabled(false);
+        correctButton.setEnabled(false);
+        wrongButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //display window to insert correct answer
+                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
+        correctButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //insert to DB
+                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
     }
 
     @Override
@@ -104,8 +130,8 @@ public class ScanItemActivity extends AppCompatActivity {
             float[] confidences = outputFeature0.getFloatArray();
             int maxPos = 0;
             float maxConfidence = 0;
-            for(int i = 0; i<confidences.length; i++){
-                if(confidences[i] > maxConfidence){
+            for (int i = 0; i < confidences.length; i++) {
+                if (confidences[i] > maxConfidence) {
                     maxConfidence = confidences[i];
                     maxPos = i;
                 }
@@ -114,16 +140,19 @@ public class ScanItemActivity extends AppCompatActivity {
             String[] classes = {"Banana", "Avocado", "Eggs", "Mozzarella", "Water", "Milk"};
 
             result.setText(classes[maxPos]);
+            scannedItemType = classes[maxPos];
+            wrongButton.setEnabled(true);
+            correctButton.setEnabled(true);
 
             String confidenceColumn1 = "";
             String confidenceColumn2 = "";
 
-            for(int i=0; i<3; i++){
-                confidenceColumn1+=String.format("%s: %.1f%%\n", classes[i], confidences[i]*100);
+            for (int i = 0; i < 3; i++) {
+                confidenceColumn1 += String.format("%s: %.1f%%\n", classes[i], confidences[i] * 100);
             }
 
-            for(int i=3; i<6; i++){
-                confidenceColumn2+=String.format("%s: %.1f%%\n", classes[i], confidences[i]*100);
+            for (int i = 3; i < 6; i++) {
+                confidenceColumn2 += String.format("%s: %.1f%%\n", classes[i], confidences[i] * 100);
             }
 
             confidence.setText(confidenceColumn1);

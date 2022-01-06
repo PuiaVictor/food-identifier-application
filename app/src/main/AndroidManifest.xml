@@ -19,6 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ScanItemActivity"/>
+        <activity android:name=".PreviouslyScannedItemsActivity"/>
     </application>
 
 </manifest>
