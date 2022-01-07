@@ -46,7 +46,6 @@ public class ScanItemActivity extends AppCompatActivity {
     ImageView imageView;
     Button takePicture, wrongButton, correctButton;
     int imageSize = 224;
-    int currentIdFromFirebase;
     float maxConfidence = 0;
 
     @Override
@@ -95,7 +94,7 @@ public class ScanItemActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         DBItem dbItem = new DBItem(
                                 result.getText().toString(),
-                                String.format("%.2f", maxConfidence*100) + " %"
+                                String.format("%.2f", maxConfidence * 100) + " %"
                         );
                         dbReference.push().setValue(dbItem);
                         Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();

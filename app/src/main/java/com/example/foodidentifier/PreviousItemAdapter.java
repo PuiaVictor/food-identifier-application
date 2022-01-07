@@ -33,8 +33,8 @@ public class PreviousItemAdapter extends RecyclerView.Adapter<PreviousItemAdapte
     @Override
     public void onBindViewHolder(@NonNull PreviousItemHolder holder, int position) {
         PreviousItem previousItem = previousItemsList.get(position);
-        holder.itemName.setText(previousItem.getPreviousItemName());
-        holder.confidence.setText(previousItem.getPreviousItemConfidence());
+        holder.itemName.setText(previousItem.getConfidence());
+        holder.confidence.setText(previousItem.getName());
     }
 
     @Override

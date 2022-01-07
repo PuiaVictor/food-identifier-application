@@ -1,31 +1,31 @@
 package com.example.foodidentifier;
 
 public class PreviousItem {
-    private String previousItemName;
-    private String previousItemConfidence;
+    private String confidence;
+    private String name;
 
-    public PreviousItem(String previousItemName, String previousItemConfidence) {
-        this.previousItemName = previousItemName;
-        this.previousItemConfidence = previousItemConfidence;
+    public PreviousItem(String confidence, String name) {
+        this.confidence = confidence;
+        this.name = name;
     }
 
     public PreviousItem() {
 
     }
 
-    public String getPreviousItemName() {
-        return previousItemName;
+    public String getConfidence() {
+        return confidence;
     }
 
-    public void setPreviousItemName(String previousItemName) {
-        this.previousItemName = previousItemName;
+    public void setConfidence(String confidence) {
+        this.confidence = confidence;
     }
 
-    public String getPreviousItemConfidence() {
-        return previousItemConfidence;
+    public String getName() {
+        return name;
     }
 
-    public void setPreviousItemConfidence(String previousItemConfidence) {
-        this.previousItemConfidence = previousItemConfidence;
+    public void setName(String name) {
+        this.name = name;
     }
 }

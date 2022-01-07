@@ -29,7 +29,7 @@ public class PreviouslyScannedItemsActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         recyclerView = findViewById(R.id.previous_items_recyclerview);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference dbReference = firebaseDatabase.getReference().child("Scans");
+        DatabaseReference dbReference = firebaseDatabase.getReference("Scans");
 
 
         recyclerView.setHasFixedSize(true);
