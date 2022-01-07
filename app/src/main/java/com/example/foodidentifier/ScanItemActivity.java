@@ -93,28 +93,14 @@ public class ScanItemActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //insert to DB
-                        dbReference.addValueEventListener(
-                                new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        if(snapshot.exists()){
-                                            currentIdFromFirebase = (int) snapshot.getChildrenCount();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                }
-                        );
                         DBItem dbItem = new DBItem(
                                 result.getText().toString(),
                                 String.format("%.2f", maxConfidence*100) + " %"
                         );
-                        dbReference.child(String.valueOf(currentIdFromFirebase + 1)).setValue(dbItem);
+                        dbReference.push().setValue(dbItem);
                         Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                        wrongButton.setEnabled(false);
+                        correctButton.setEnabled(false);
                     }
                 }
         );
@@ -197,6 +183,7 @@ public class ScanItemActivity extends AppCompatActivity {
             int[] intValues = new int[imageSize * imageSize];
             image.getPixels(intValues, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
 
+            maxConfidence = 0;
             int pixel = 0;
             for (int i = 0; i < imageSize; i++) {
                 for (int j = 0; j < imageSize; j++) {

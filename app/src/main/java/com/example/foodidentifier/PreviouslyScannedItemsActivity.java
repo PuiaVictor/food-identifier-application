@@ -31,6 +31,7 @@ public class PreviouslyScannedItemsActivity extends AppCompatActivity {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference dbReference = firebaseDatabase.getReference().child("Scans");
 
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
