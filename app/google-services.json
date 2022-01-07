@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "663000042463",
-    "project_id": "foodidentifier-6a1bf",
-    "storage_bucket": "foodidentifier-6a1bf.appspot.com"
+    "project_number": "74593499887",
+    "project_id": "foodidentifier-3e459",
+    "storage_bucket": "foodidentifier-3e459.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:663000042463:android:d2a5074a8234c1f316526a",
+        "mobilesdk_app_id": "1:74593499887:android:37fdeae110b76bb7f0391a",
         "android_client_info": {
           "package_name": "com.example.foodidentifier"
         }
       },
       "oauth_client": [
         {
-          "client_id": "663000042463-ei88i8vhb2ahlglv0bspf6vmkmcn80mu.apps.googleusercontent.com",
+          "client_id": "74593499887-ibimuhdsc32d931i6nhek6cqe5cbf223.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCpUlcbH1Ah5VTqd8MTDcy9ovGJEZTzCD0"
+          "current_key": "AIzaSyCRJMYIEVE10uYjiaMnWYU_e3-qD4MM5WE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "663000042463-ei88i8vhb2ahlglv0bspf6vmkmcn80mu.apps.googleusercontent.com",
+              "client_id": "74593499887-ibimuhdsc32d931i6nhek6cqe5cbf223.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

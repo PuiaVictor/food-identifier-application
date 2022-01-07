@@ -21,12 +21,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.foodidentifier.ml.MyModel;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
@@ -40,7 +46,8 @@ public class ScanItemActivity extends AppCompatActivity {
     ImageView imageView;
     Button takePicture, wrongButton, correctButton;
     int imageSize = 224;
-    String scannedItemType = "";
+    int currentIdFromFirebase;
+    float maxConfidence = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +61,8 @@ public class ScanItemActivity extends AppCompatActivity {
         takePicture = findViewById(R.id.pictureButton);
         wrongButton = findViewById(R.id.wrongButton);
         correctButton = findViewById(R.id.correctButton);
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference dbReference = firebaseDatabase.getReference().child("Scans");
 
         takePicture.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -85,6 +94,26 @@ public class ScanItemActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         //insert to DB
+                        dbReference.addValueEventListener(
+                                new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if(snapshot.exists()){
+                                            currentIdFromFirebase = (int) snapshot.getChildrenCount();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+
+                                    }
+                                }
+                        );
+                        DBItem dbItem = new DBItem(
+                                result.getText().toString(),
+                                String.format("%.2f", maxConfidence*100) + " %"
+                        );
+                        dbReference.child(String.valueOf(currentIdFromFirebase + 1)).setValue(dbItem);
                         Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -185,7 +214,6 @@ public class ScanItemActivity extends AppCompatActivity {
 
             float[] confidences = outputFeature0.getFloatArray();
             int maxPos = 0;
-            float maxConfidence = 0;
             for (int i = 0; i < confidences.length; i++) {
                 if (confidences[i] > maxConfidence) {
                     maxConfidence = confidences[i];
@@ -196,7 +224,6 @@ public class ScanItemActivity extends AppCompatActivity {
             String[] classes = {"Banana", "Avocado", "Eggs", "Mozzarella", "Water", "Milk"};
 
             result.setText(classes[maxPos]);
-            scannedItemType = classes[maxPos];
             wrongButton.setEnabled(true);
             correctButton.setEnabled(true);
 
