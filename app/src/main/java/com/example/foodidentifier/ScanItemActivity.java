@@ -117,15 +117,20 @@ public class ScanItemActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        DBItem dbItem = new DBItem(
-                                                result.getText().toString(),
-                                                String.format("%.2f", maxConfidence * 100) + " %",
-                                                taskSnapshot.getStorage().getDownloadUrl().toString()
-                                        );
-                                        dbReferenceCorrectScans.push().setValue(dbItem);
-                                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
-                                        wrongButton.setEnabled(false);
-                                        correctButton.setEnabled(false);
+                                        correctFileStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                DBItem dbItem = new DBItem(
+                                                        result.getText().toString(),
+                                                        String.format("%.2f", maxConfidence * 100) + " %",
+                                                        uri.toString()
+                                                );
+                                                dbReferenceCorrectScans.push().setValue(dbItem);
+                                                Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                                                wrongButton.setEnabled(false);
+                                                correctButton.setEnabled(false);
+                                            }
+                                        });
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {

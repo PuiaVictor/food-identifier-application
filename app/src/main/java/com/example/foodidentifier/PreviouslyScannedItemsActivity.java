@@ -21,7 +21,7 @@ import java.util.List;
 public class PreviouslyScannedItemsActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-    List<PreviousItem> previousItemsList = new ArrayList<>();
+    List<DBItem> previousItemsList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +29,7 @@ public class PreviouslyScannedItemsActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         recyclerView = findViewById(R.id.previous_items_recyclerview);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference dbReference = firebaseDatabase.getReference("Scans");
+        DatabaseReference dbReference = firebaseDatabase.getReference("correct-scans");
 
 
         recyclerView.setHasFixedSize(true);
@@ -43,7 +43,7 @@ public class PreviouslyScannedItemsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    PreviousItem previousItem = dataSnapshot.getValue(PreviousItem.class);
+                    DBItem previousItem = dataSnapshot.getValue(DBItem.class);
                     previousItemsList.add(previousItem);
                 }
                 previousItemAdapter.notifyDataSetChanged();

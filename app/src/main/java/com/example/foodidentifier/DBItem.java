@@ -14,6 +14,9 @@ public class DBItem {
         this.imageUrl = imageUrl;
     }
 
+    public DBItem() {
+    }
+
     public String getName() {
         return name;
     }

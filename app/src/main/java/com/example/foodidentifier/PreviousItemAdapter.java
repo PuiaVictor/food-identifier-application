@@ -4,10 +4,13 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +19,9 @@ public class PreviousItemAdapter extends RecyclerView.Adapter<PreviousItemAdapte
 
     Context context;
 
-    List<PreviousItem> previousItemsList = new ArrayList<>();
+    List<DBItem> previousItemsList = new ArrayList<>();
 
-    public PreviousItemAdapter(Context context, List<PreviousItem> previousItemsList){
+    public PreviousItemAdapter(Context context, List<DBItem> previousItemsList) {
         this.context = context;
         this.previousItemsList = previousItemsList;
     }
@@ -32,9 +35,14 @@ public class PreviousItemAdapter extends RecyclerView.Adapter<PreviousItemAdapte
 
     @Override
     public void onBindViewHolder(@NonNull PreviousItemHolder holder, int position) {
-        PreviousItem previousItem = previousItemsList.get(position);
+        DBItem previousItem = previousItemsList.get(position);
         holder.itemName.setText(previousItem.getName());
         holder.confidence.setText(previousItem.getConfidence());
+        Picasso.with(context)
+                .load(previousItem.getImageUrl())
+                .fit()
+                .centerCrop()
+                .into(holder.itemPicture);
     }
 
     @Override
@@ -42,14 +50,16 @@ public class PreviousItemAdapter extends RecyclerView.Adapter<PreviousItemAdapte
         return previousItemsList.size();
     }
 
-    public static class PreviousItemHolder extends RecyclerView.ViewHolder{
+    public static class PreviousItemHolder extends RecyclerView.ViewHolder {
 
         TextView itemName, confidence;
+        ImageView itemPicture;
 
         public PreviousItemHolder(@NonNull View itemView) {
             super(itemView);
             itemName = itemView.findViewById(R.id.previousItemName);
             confidence = itemView.findViewById(R.id.previousItemConfidence);
+            itemPicture = itemView.findViewById(R.id.item_picture);
         }
     }
 }
