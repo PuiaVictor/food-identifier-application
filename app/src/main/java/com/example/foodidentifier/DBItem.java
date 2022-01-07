@@ -6,11 +6,12 @@ public class DBItem {
 
     private String name;
     private String confidence;
-    private Image image;
+    private String imageUrl;
 
-    public DBItem(String name, String confidence) {
+    public DBItem(String name, String confidence, String imageUrl) {
         this.name = name;
         this.confidence = confidence;
+        this.imageUrl = imageUrl;
     }
 
     public String getName() {
@@ -27,5 +28,13 @@ public class DBItem {
 
     public void setConfidence(String confidence) {
         this.confidence = confidence;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

@@ -2,10 +2,13 @@ package com.example.foodidentifier;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,15 +32,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.foodidentifier.ml.MyModel;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -47,6 +57,7 @@ public class ScanItemActivity extends AppCompatActivity {
     Button takePicture, wrongButton, correctButton;
     int imageSize = 224;
     float maxConfidence = 0;
+    private Uri imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +73,7 @@ public class ScanItemActivity extends AppCompatActivity {
         correctButton = findViewById(R.id.correctButton);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference dbReference = firebaseDatabase.getReference().child("Scans");
+        StorageReference dbStorageReference = FirebaseStorage.getInstance().getReference().child("Scans");
 
         takePicture.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -92,18 +104,38 @@ public class ScanItemActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DBItem dbItem = new DBItem(
-                                result.getText().toString(),
-                                String.format("%.2f", maxConfidence * 100) + " %"
-                        );
-                        dbReference.push().setValue(dbItem);
-                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
-                        wrongButton.setEnabled(false);
-                        correctButton.setEnabled(false);
+                        StorageReference fileStorage = dbStorageReference.child(result.getText().toString() + "." + getFileExtension(imageUri));
+                        fileStorage.putFile(imageUri)
+                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        DBItem dbItem = new DBItem(
+                                                result.getText().toString(),
+                                                String.format("%.2f", maxConfidence * 100) + " %",
+                                                taskSnapshot.getStorage().getDownloadUrl().toString()
+                                        );
+                                        dbReference.push().setValue(dbItem);
+                                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                                        wrongButton.setEnabled(false);
+                                        correctButton.setEnabled(false);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(ScanItemActivity.this, "The file could not be uploaded.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
                     }
                 }
         );
 
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
     private void showSuggestionForCorrectAnswerDialog() {
@@ -160,6 +192,7 @@ public class ScanItemActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             Bitmap image = (Bitmap) data.getExtras().get("data");
+            imageUri = getImageUri(this, image);
             int dimension = Math.min(image.getWidth(), image.getHeight());
             image = ThumbnailUtils.extractThumbnail(image, dimension, dimension);
             imageView.setImageBitmap(image);
@@ -168,6 +201,13 @@ public class ScanItemActivity extends AppCompatActivity {
             classifyFood(image);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public Uri getImageUri(Context context, Bitmap bitmapImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmapImage, "Title", null);
+        return Uri.parse(path);
     }
 
     public void classifyFood(Bitmap image) {

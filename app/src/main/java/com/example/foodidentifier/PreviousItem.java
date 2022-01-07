@@ -1,12 +1,13 @@
 package com.example.foodidentifier;
 
 public class PreviousItem {
-    private String confidence;
     private String name;
+    private String confidence;
 
-    public PreviousItem(String confidence, String name) {
-        this.confidence = confidence;
+
+    public PreviousItem(String name,String confidence) {
         this.name = name;
+        this.confidence = confidence;
     }
 
     public PreviousItem() {
