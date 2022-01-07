@@ -58,6 +58,8 @@ public class ScanItemActivity extends AppCompatActivity {
     int imageSize = 224;
     float maxConfidence = 0;
     private Uri imageUri;
+    StorageReference dbStorageReferenceCorrectScans, dbStorageReferenceWrongScans;
+    DatabaseReference dbReferenceCorrectScans, dbReferenceWrongScans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +74,10 @@ public class ScanItemActivity extends AppCompatActivity {
         wrongButton = findViewById(R.id.wrongButton);
         correctButton = findViewById(R.id.correctButton);
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference dbReference = firebaseDatabase.getReference().child("Scans");
-        StorageReference dbStorageReference = FirebaseStorage.getInstance().getReference().child("Scans");
+        dbReferenceCorrectScans = firebaseDatabase.getReference().child("correct-scans");
+        dbReferenceWrongScans = firebaseDatabase.getReference().child("wrong-scans");
+        dbStorageReferenceCorrectScans = FirebaseStorage.getInstance().getReference().child("Correct Scans");
+        dbStorageReferenceWrongScans = FirebaseStorage.getInstance().getReference().child("Wrong Scans");
 
         takePicture.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -104,8 +108,12 @@ public class ScanItemActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        StorageReference fileStorage = dbStorageReference.child(result.getText().toString() + "." + getFileExtension(imageUri));
-                        fileStorage.putFile(imageUri)
+                        StorageReference correctFileStorage = dbStorageReferenceCorrectScans.child(System.currentTimeMillis()
+                                + "-"
+                                + result.getText().toString()
+                                + "."
+                                + getFileExtension(imageUri));
+                        correctFileStorage.putFile(imageUri)
                                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -114,7 +122,7 @@ public class ScanItemActivity extends AppCompatActivity {
                                                 String.format("%.2f", maxConfidence * 100) + " %",
                                                 taskSnapshot.getStorage().getDownloadUrl().toString()
                                         );
-                                        dbReference.push().setValue(dbItem);
+                                        dbReferenceCorrectScans.push().setValue(dbItem);
                                         Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
                                         wrongButton.setEnabled(false);
                                         correctButton.setEnabled(false);
@@ -170,10 +178,27 @@ public class ScanItemActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        alertWindow.dismiss();
-                        Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
-                        wrongButton.setEnabled(false);
-                        correctButton.setEnabled(false);
+                        StorageReference wrongFileStorage = dbStorageReferenceWrongScans.child(System.currentTimeMillis()
+                                + "-"
+                                + result.getText().toString()
+                                + "."
+                                + getFileExtension(imageUri));
+                        wrongFileStorage.putFile(imageUri)
+                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                          @Override
+                                                          public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                              DBFailedItem dbFailedItem = new DBFailedItem(
+                                                                      result.getText().toString(),
+                                                                      taskSnapshot.getStorage().getDownloadUrl().toString()
+                                                              );
+                                                              dbReferenceWrongScans.push().setValue(dbFailedItem);
+                                                              alertWindow.dismiss();
+                                                              Toast.makeText(ScanItemActivity.this, "Thank you for your feedback!", Toast.LENGTH_LONG).show();
+                                                              wrongButton.setEnabled(false);
+                                                              correctButton.setEnabled(false);
+                                                          }
+                                                      }
+                                );
                     }
                 }
         );
